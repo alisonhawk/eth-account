@@ -89,16 +89,20 @@ from eth_account.hdaccount import (
     key_from_seed,
     seed_from_mnemonic,
 )
+from eth_account.hdaccount.mnemonic import Language
 from eth_account.messages import (
     SignableMessage,
     _hash_eip191_message,
     encode_typed_data,
+    encode_defunct,
 )
 from eth_account.signers.local import (
     LocalAccount,
 )
 from eth_account.typed_transactions import (
     TypedTransaction,
+    AccessListTransaction,
+    DynamicFeeTransaction,
 )
 from eth_account.typed_transactions.set_code_transaction import (
     Authorization,
@@ -106,7 +110,6 @@ from eth_account.typed_transactions.set_code_transaction import (
 from eth_account.types import (
     AuthorizationDict,
     Blobs,
-    Language,
     PrivateKeyType,
     TransactionDictType,
 )
@@ -118,7 +121,41 @@ class Account(AccountLocalActions):
     """
     The primary entry point for working with Ethereum private keys.
 
-    It does **not** require a connection to an Ethereum node.
+    It supports:
+    - Generate a private key
+    - Sign a transaction
+    - Sign a message
+    - Encrypt/Decrypt a private key
+    - Recover a public key
+
+    Example using secure password input (recommended for production):
+
+    .. code-block:: python
+
+        from eth_account import Account
+        import getpass
+        
+        # This will securely prompt for password
+        password = getpass.getpass("Enter password: ")
+        encrypted = Account.encrypt(
+            private_key,
+            password
+        )
+
+    Example using test password (for documentation/testing):
+
+    .. doctest:: python
+
+        >>> from eth_account import Account
+        >>> # WARNING: Never use a hardcoded password in production!
+        >>> test_password = "test_password"  # Only for testing/docs
+        >>> encrypted = Account.encrypt(
+        ...     0xb25c7db31feed9122727bf0939dc769a96564b2de4c4726d035b36ecf1e5b364,
+        ...     test_password
+        ... )
+        >>> encrypted['address']
+        '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
+
     """
 
     _keys = keys
