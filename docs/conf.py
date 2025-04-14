@@ -13,9 +13,9 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-# sys.path.insert(0, os.path.abspath('.'))
-
 import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 DIR = os.path.dirname(__file__)
 with open(os.path.join(DIR, "../setup.py"), "r") as f:
@@ -38,6 +38,19 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
 ]
+
+# Doctest configuration
+doctest_global_setup = '''
+import sys
+from unittest.mock import MagicMock
+
+# Mock getpass for doctests
+class MockGetPass:
+    def getpass(self, prompt=None):
+        return "test_password"
+
+sys.modules['getpass'] = MockGetPass()
+'''
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
